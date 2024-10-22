@@ -1,10 +1,11 @@
 import os
+from urllib.parse import unquote
 import requests
 import json
 
 # Константы для API
 API_BASE_URL = "http://127.0.0.1:8000/notes"
-TOKEN_FILE = "token.txt"
+TOKEN_FILE = "tokens.txt"
 
 
 # Функция для получения токена из файла
@@ -23,6 +24,8 @@ def create_note():
         return
 
     text = input("Введите текст заметки: ")
+
+    # Отправляем POST запрос с телом запроса в формате JSON
     response = requests.post(
         f"{API_BASE_URL}/",
         params={"token": token},
@@ -34,6 +37,20 @@ def create_note():
     else:
         print(f"Ошибка создания заметки: {response.text}")
 
+# def create_note():
+#     token = get_token()
+#     if not token:
+#         return
+#
+#     text = input("Введите текст заметки: ")
+#     url = f"http://127.0.0.1:8000/notes/?token={token}&text={text}"
+#
+#     response = requests.post(url)
+#
+#     if response.status_code == 200:
+#         print(f"Заметка создана с ID: {response.json()['id']}")
+#     else:
+#         print(f"Ошибка создания заметки: {response.text}")
 
 # Функция для чтения заметки по ID
 def read_note():
@@ -49,9 +66,11 @@ def read_note():
 
     if response.status_code == 200:
         note = response.json()
-        print(f"ID: {note['id']}\nТекст: {note['text']}")
+        note_text = unquote(note['text'])  # Декодируем текст заметки
+        print(f"ID: {note['id']}\nТекст: {note_text}")
     else:
         print(f"Ошибка получения заметки: {response.text}")
+
 
 
 # Функция для получения информации о заметке

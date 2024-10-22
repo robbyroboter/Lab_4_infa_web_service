@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Body
 from pydantic import BaseModel
 from typing import List, Dict
 from datetime import datetime
@@ -50,7 +50,7 @@ def read_note_file(note_id: int):
 
 # 1. Создать заметку (POST)
 @app.post("/notes/", response_model=Note)
-def create_note(text: str, token: str = Depends(verify_token)):
+def create_note(text: str = Body(...), token: str = Depends(verify_token)):
     note_id = len(os.listdir(NOTES_DIR)) + 1
     created_at = updated_at = datetime.now().isoformat()
 
@@ -87,7 +87,7 @@ def get_note_info(note_id: int, token: str = Depends(verify_token)):
 
 # 4. Обновить текст заметки (PATCH)
 @app.patch("/notes/{note_id}")
-def update_note(note_id: int, text: str, token: str = Depends(verify_token)):
+def update_note(note_id: int, text: str = Body(...), token: str = Depends(verify_token)):
     note_data = read_note_file(note_id)
     note_data["text"] = text
     note_data["updated_at"] = datetime.now().isoformat()
